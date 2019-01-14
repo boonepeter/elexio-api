@@ -14,7 +14,6 @@ import requests
 import pandas as pd
 import os
 import getpass
-from tqdm import tqdm
 
 
 BASEURL = "https://wheatlandpca.elexiochms.com/api"
