@@ -1,16 +1,21 @@
 
 """
-Created on Sat Jan 12 11:12:26 2019
-
 @author: Peter Boone
 email: boonepeterg@gmail.com
+
+Some functions to pull data from the Elexio API. 
+
+Documentation for this API can be found at https://wheatlandpca.elexiochms.com/api_documentation 
+(login required)
+
 """
 
-#import the requests library to use to get and post HTTP requests
 import requests
 import pandas as pd
 import os
 import getpass
+from tqdm import tqdm
+
 
 BASEURL = "https://wheatlandpca.elexiochms.com/api"
 
@@ -34,7 +39,7 @@ def get_session_id(username=None, password=None):
 
     login_info = {'username':USERNAME, 'password':PASSWORD}
 
-    for i in range(5):
+    for i in range(3):
         #send a request post with your info in it to receive a session_id
         session_url = BASEURL + "/user/login"
         session_response = requests.post(session_url, data=login_info)
@@ -125,6 +130,8 @@ def _parse_names(last_name_dict):
 
 
 def get_metadata(session_id):
+    """Returns a dictionary of {'text1': 'Race'} etc
+    """
     
     url = BASEURL + '/user/get_meta_data' + '?session_id=' + session_id
     metadata_response = requests.get(url)
@@ -146,16 +153,17 @@ def get_pdf_of_user(session_id, user_id, filepath_to_save=None):
     
     filename = str(user_id) + '.pdf'
     
-    if filepath_to_save:
+    if filepath_to_save is not None:
         full_path = os.path.join(filepath_to_save, filename)
     else:
         full_path = filename
     with open(full_path, 'wb') as pdf_file:
         pdf_file.write(pdf_response.content)
-        
     return
 
 def get_groups(session_id, write=True):
+    """Gets all of the groups and their descriptions, but not who is in them
+    """
     url = BASEURL + '/groups/sync?session_id=' + session_id
     groups_response = requests.get(url)
     groups_response.raise_for_status()
@@ -177,7 +185,8 @@ def get_groups(session_id, write=True):
     
     
 
-def get_users_in_group(session_id, group_id, write=True, group_name=None):
+def get_users_in_group(session_id, group_id, write=True, group_name=None, filepath=None):
+    
     url = BASEURL + '/groups/' + str(group_id) + '/people?session_id=' + session_id
     
     users_in_request = requests.get(url)
@@ -205,16 +214,23 @@ def get_users_in_group(session_id, group_id, write=True, group_name=None):
                 user_columns[i] = name
     user_df.columns = user_columns
     
+    #only need the first 4 columns
+    user_df = user_df.iloc[:, :4]
+    
     if write:
         filename = 'users_in_group_' + str(group_id) + '.csv'
+        if filepath is not None:
+            filename = os.path.join(filepath, filename)
         user_df.to_csv(filename)
         return
     else:
         return user_df
     
-def big_df_of_users(session_id):
+    
+def big_df_of_users(session_id, filepath=None):
     """Gets the people in different groups. Will take a while to request every group
     """
+    filename = "users_in_all_groups.csv"
     group_frame = get_groups(session_id, write=False)
     
     big_df = pd.DataFrame()
@@ -227,7 +243,11 @@ def big_df_of_users(session_id):
             continue
         small_df = get_users_in_group(session_id, gid, write=False, group_name=g_name)
         big_df = big_df.append(small_df)
-    big_df.to_csv('users_in_all_groups.csv')
+        
+    if filepath is not None:
+        filename = os.path.join(filepath, filename)
+    big_df.to_csv(filename)
+    
     return
 
        
@@ -238,15 +258,61 @@ def get_user(session_id, user_id):
     person_response = requests.get(url)
     person_response.raise_for_status()
     
-    return
+    person_data = person_response.json()['data']
+    person_data['fid'] = ""
+    if person_data['family'] != []:
+        family_list = []
+        for person in person_data['family']:
+            relative = f"{person['uid']}:{person['relationship']}"
+            family_list.append(relative)
+            person_data['fid'] = person['fid']
+        family_string = " ".join(family_list)
+        person_data['family'] = family_string
     
+    if person_data['groups'] != []:
+        group_list = []
+        for group in person_data['groups']:
+            group_list.append(str(group['gid']))
+        person_data['groups'] = " ".join(group_list)
+    if person_data['note']:
+        notes = []
+        for key, value in person_data['note'].items():
+            notes.append(f'{key}:{value}')
+        person_data['note'] = " ".join(notes)
+    ordered_columns = person_data.keys()
+    small_df = pd.DataFrame([person_data], columns=ordered_columns)
+    
+    return small_df
+
+def get_all_users(session_id):
+    
+    people_all = download_all(session_id, write=False)
+    big_df = pd.DataFrame()
+    print("Grabbing every user one at a time...")
+    for index, rows in tqdm(people_all.iterrows()):
+        person_data = get_user(session_id, rows['uid'])
+        small_df = pd.DataFrame([person_data])
+        big_df = big_df.append(small_df)
+        
+    df_columns = list(big_df.columns)
+    meta_fields = get_metadata(session_id)
+    for i in range(len(df_columns)):
+        for field, name in meta_fields.items():
+            if df_columns[i] == field:
+                df_columns[i] = name
+    big_df.columns = df_columns
+    
+    big_df.to_csv('all_users_big.csv')
+    return
+
+
     
 
 if __name__ == "__main__":
     
     session_id = get_session_id()
-    
-    #download_all(session_id)
+    #get_all_users(session_id)
+    download_all(session_id)
     #get_pdf_of_user(session_id, 1149)
     #download_all(get_session_id())
     #get_metadata(get_session_id())
