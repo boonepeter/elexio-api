@@ -14,7 +14,10 @@ import requests
 import pandas as pd
 import os
 import getpass
+<<<<<<< HEAD
 
+=======
+>>>>>>> d0ed1216fc95aa3bd5a170aea832095c36d5afd6
 
 
 BASEURL = "https://wheatlandpca.elexiochms.com/api"
