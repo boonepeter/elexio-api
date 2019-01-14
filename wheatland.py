@@ -14,7 +14,7 @@ import requests
 import pandas as pd
 import os
 import getpass
-from tqdm import tqdm
+
 
 
 BASEURL = "https://wheatlandpca.elexiochms.com/api"
@@ -289,7 +289,7 @@ def get_all_users(session_id):
     people_all = download_all(session_id, write=False)
     big_df = pd.DataFrame()
     print("Grabbing every user one at a time...")
-    for index, rows in tqdm(people_all.iterrows()):
+    for index, rows in people_all.iterrows():
         person_data = get_user(session_id, rows['uid'])
         small_df = pd.DataFrame([person_data])
         big_df = big_df.append(small_df)
