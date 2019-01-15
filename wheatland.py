@@ -215,7 +215,11 @@ def get_users_in_group(session_id, group_id, write=True, group_name=None, filepa
     user_df.columns = user_columns
     
     #only need the first 4 columns
-    user_df = user_df.iloc[:, :4]
+    #added if clause so when group name is passed we don't lose uid
+    if group_name is not None:
+        user_df = user_df.iloc[:, :5]
+    else:
+        user_df = user_df.iloc[:, :4]
     
     if write:
         filename = 'users_in_group_' + str(group_id) + '.csv'
@@ -284,14 +288,13 @@ def get_user(session_id, user_id):
     
     return small_df
 
-def get_all_users(session_id):
+def get_all_users(session_id, filename='all_users_big.csv'):
     
     people_all = download_all(session_id, write=False)
     big_df = pd.DataFrame()
-    print("Grabbing every user one at a time...")
+    print("Grabbing every user one at a time...this will take a few minutes")
     for index, rows in people_all.iterrows():
-        person_data = get_user(session_id, rows['uid'])
-        small_df = pd.DataFrame([person_data])
+        small_df = get_user(session_id, rows['uid'])
         big_df = big_df.append(small_df)
         
     df_columns = list(big_df.columns)
@@ -302,7 +305,7 @@ def get_all_users(session_id):
                 df_columns[i] = name
     big_df.columns = df_columns
     
-    big_df.to_csv('all_users_big.csv')
+    big_df.to_csv(filename)
     return
 
 
@@ -312,7 +315,7 @@ if __name__ == "__main__":
     
     session_id = get_session_id()
     #get_all_users(session_id)
-    download_all(session_id)
+    #download_all(session_id)
     #get_pdf_of_user(session_id, 1149)
     #download_all(get_session_id())
     #get_metadata(get_session_id())
