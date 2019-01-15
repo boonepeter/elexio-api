@@ -309,11 +309,50 @@ def get_all_users(session_id, filename='all_users_big.csv'):
     return
 
 
+def person_attendance(session_id, uid, week_offset=0, number_of_weeks=50):
     
+    url = BASEURL + '/attendance/for_person/' + str(uid) + '?session_id=' \
+               + session_id + '&start=' + str(week_offset) + '&count=' \
+               + str(number_of_weeks)
+
+    att_request = requests.get(url)
+    att_request.raise_for_status()
+    
+    att_items = att_request.json()['data']['items']
+    att_df = pd.DataFrame(att_items)
+
+    return att_df
+
+def all_attendance(session_id, filename='all_attendance.csv', week_off=0, count=50):
+    """Goes through every user and gets their attendence. 
+    
+    Parameters
+    ----------
+    weeks_off = offset back from current week. So 5 would start 5 weeks ago and 
+                work backwards from that
+    count = the number of events to count. Elexio default is 50. Entering a very 
+                large number will ensure that you get everything
+    
+    """
+    
+    people_all = download_all(session_id, write=False)
+    big_df = pd.DataFrame()
+    print("Grabbing attendance of every user one at a time...this will take a few minutes")
+    for index, rows in people_all.iterrows():
+        small_df = person_attendance(session_id, uid=rows['uid'], 
+                                     week_offset=week_off, 
+                                     number_of_weeks=count)
+        
+        big_df = big_df.append(small_df)
+    
+    big_df.to_csv(filename)
+    return
 
 if __name__ == "__main__":
     
     session_id = get_session_id()
+    
+    
     #get_all_users(session_id)
     #download_all(session_id)
     #get_pdf_of_user(session_id, 1149)
@@ -323,7 +362,6 @@ if __name__ == "__main__":
     #get_users_in_group(session_id, 19)
     #big_df_of_users(session_id)
 
-    pass
-
+    
 
 
