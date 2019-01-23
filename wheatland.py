@@ -18,6 +18,7 @@ import getpass
 
 
 BASEURL = "https://wheatlandpca.elexiochms.com/api"
+DELIMITER = "\t"
 
 
 
@@ -66,7 +67,7 @@ def get_session_id(username=None, password=None):
     return session_data['session_id']
 
 
-def download_all(session_id, write=True, path_to_download="people_all.csv"):
+def download_all(session_id, write=True, path_to_download="people_all.tsv", delim=DELIMITER):
     """Requests all of the people and formats it in a csv
     path_to_download: file name or full file path. If just file name, 
                       will save to current working directory
@@ -110,7 +111,7 @@ def download_all(session_id, write=True, path_to_download="people_all.csv"):
     data_frame.columns = ordered_columns
     
     if write:
-        data_frame.to_csv(path_to_download)
+        data_frame.to_csv(path_to_download, sep=delim)
         return
     else:
         return data_frame
@@ -161,7 +162,7 @@ def get_pdf_of_user(session_id, user_id, filepath_to_save=None):
         pdf_file.write(pdf_response.content)
     return
 
-def get_groups(session_id, write=True):
+def get_groups(session_id, write=True, delim=DELIMITER):
     """Gets all of the groups and their descriptions, but not who is in them
     """
     url = BASEURL + '/groups/sync?session_id=' + session_id
@@ -178,14 +179,14 @@ def get_groups(session_id, write=True):
     except:
         pass
     if write:
-        groups_frame.to_csv('groups.csv')
+        groups_frame.to_csv('groups.tsv', sep=delim)
         return
     else:
         return groups_frame
     
     
 
-def get_users_in_group(session_id, group_id, write=True, group_name=None, filepath=None):
+def get_users_in_group(session_id, group_id, write=True, group_name=None, filepath=None, delim=DELIMITER):
     
     url = BASEURL + '/groups/' + str(group_id) + '/people?session_id=' + session_id
     
@@ -222,19 +223,19 @@ def get_users_in_group(session_id, group_id, write=True, group_name=None, filepa
         user_df = user_df.iloc[:, :4]
     
     if write:
-        filename = 'users_in_group_' + str(group_id) + '.csv'
+        filename = 'users_in_group_' + str(group_id) + '.tsv'
         if filepath is not None:
             filename = os.path.join(filepath, filename)
-        user_df.to_csv(filename)
+        user_df.to_csv(filename, sep=delim)
         return
     else:
         return user_df
     
     
-def big_df_of_users(session_id, filepath=None):
+def big_df_of_users(session_id, filepath=None, delim=DELIMITER):
     """Gets the people in different groups. Will take a while to request every group
     """
-    filename = "users_in_all_groups.csv"
+    filename = "users_in_all_groups.tsv"
     group_frame = get_groups(session_id, write=False)
     
     big_df = pd.DataFrame()
@@ -250,7 +251,7 @@ def big_df_of_users(session_id, filepath=None):
         
     if filepath is not None:
         filename = os.path.join(filepath, filename)
-    big_df.to_csv(filename)
+    big_df.to_csv(filename, sep=delim)
     
     return
 
@@ -288,7 +289,7 @@ def get_user(session_id, user_id):
     
     return small_df
 
-def get_all_users(session_id, filename='all_users_big.csv'):
+def get_all_users(session_id, filename='all_users_big.tsv', delim=DELIMITER):
     
     people_all = download_all(session_id, write=False)
     big_df = pd.DataFrame()
@@ -305,7 +306,7 @@ def get_all_users(session_id, filename='all_users_big.csv'):
                 df_columns[i] = name
     big_df.columns = df_columns
     
-    big_df.to_csv(filename)
+    big_df.to_csv(filename, sep=delim)
     return
 
 
@@ -323,7 +324,7 @@ def person_attendance(session_id, uid, week_offset=0, number_of_weeks=50):
 
     return att_df
 
-def all_attendance(session_id, filename='all_attendance.csv', week_off=0, count=50):
+def all_attendance(session_id, filename='all_attendance.tsv', week_off=0, count=50, delim=DELIMITER):
     """Goes through every user and gets their attendence. 
     
     Parameters
@@ -345,7 +346,7 @@ def all_attendance(session_id, filename='all_attendance.csv', week_off=0, count=
         
         big_df = big_df.append(small_df)
     
-    big_df.to_csv(filename)
+    big_df.to_csv(filename, sep=delim)
     return
 
 if __name__ == "__main__":
