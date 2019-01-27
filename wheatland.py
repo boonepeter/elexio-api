@@ -39,8 +39,8 @@ __all__ = ["get_session_id",
            "get_users_in_all_groups",
            "get_user",
            "get_all_users",
-           "person_attendance",
-           "all_attendance"]
+           "get_user_attendance",
+           "get_all_attendance"]
 
 
 
@@ -50,17 +50,14 @@ __all__ = ["get_session_id",
 def _request_get_data(url_suffix, parameters={}):
     """Helper function to get a response with certain parameters and return the data
     """
-    
     url = BASEURL + url_suffix
     response = requests.get(url, params=parameters)
     response.raise_for_status()
     return response.json()['data']
 
-
 def _parse_names(last_name_dict):
     """Helper function to unpack the data when grouped by last name letter
     """
-    
     big_list = []
     for last_letter, people_with_last in last_name_dict.items():
         for person in people_with_last:
@@ -71,7 +68,6 @@ def _parse_names(last_name_dict):
 def _get_metadata(session_id):
     """Returns a dictionary of {'text1': 'Race'} etc
     """
-    
     meta_data = _request_get_data('/user/get_meta_data', parameters={"session_id":session_id})
     meta_date_fields = meta_data['dateFieldLabels']
     meta_text_fields = meta_data['textFieldLabels']
@@ -342,8 +338,8 @@ def get_all_users(session_id, write=True, file_location=DOWNLOAD_LOCATION,
         return big_df
 
 
-def person_attendance(session_id, uid, week_offset=0, number_of_weeks=50, 
-                      write=False, file_location=DOWNLOAD_LOCATION, delim=DELIMITER):
+def get_user_attendance(session_id, uid, week_offset=0, number_of_weeks=50, 
+                      write=True, file_location=DOWNLOAD_LOCATION, delim=DELIMITER):
     """Gets a single user's attendance. 
     """
     
@@ -358,14 +354,14 @@ def person_attendance(session_id, uid, week_offset=0, number_of_weeks=50,
     att_df = pd.DataFrame(att_items)
     
     if write:
-        filename = "user_" + str(uid) + "attendance.tsv"
+        filename = "user_" + str(uid) + "_attendance.tsv"
         full_path = os.path.join(file_location, filename)
         att_df.to_csv(full_path, sep=delim)
         return
     else:
         return att_df
 
-def all_attendance(session_id, week_off=0, number_of_weeks=50, write=True, 
+def get_all_attendance(session_id, week_off=0, number_of_weeks=50, write=True, 
                    file_location=DOWNLOAD_LOCATION, filename="all_attendance.tsv", 
                    delim=DELIMITER):
     """Goes through every user and gets their attendence. 
@@ -384,9 +380,9 @@ def all_attendance(session_id, week_off=0, number_of_weeks=50, write=True,
     big_df = pd.DataFrame()
     print("Grabbing attendance of every user one at a time...this will take a few minutes")
     for index, rows in people_all.iterrows():
-        small_df = person_attendance(session_id, uid=rows['uid'], 
-                                     week_offset=week_off, 
-                                     number_of_weeks=number_of_weeks)
+        small_df = get_user_attendance(session_id, uid=rows['uid'],
+                                       write=False, week_offset=week_off, 
+                                       number_of_weeks=number_of_weeks)
         
         big_df = big_df.append(small_df)
     
@@ -396,8 +392,6 @@ def all_attendance(session_id, week_off=0, number_of_weeks=50, write=True,
         return
     else:
         return big_df
-
-
 
 
 #This code will be executed when this file is run. If this file is imported into
@@ -415,8 +409,8 @@ if __name__ == "__main__":
     #get_users_in_all_groups(session_id)
     #get_user(session_id, 1149)
     #get_all_users(session_id)
-    #person_attendance(session_id, 1149)
-    #all_attendance(session_id)
+    #get_user_attendance(session_id, 1149)
+    #get_all_attendance(session_id)
     
     
 
