@@ -42,7 +42,8 @@ __all__ = ["get_session_id",
            "get_user",
            "get_all_users",
            "get_user_attendance",
-           "get_all_attendance"]
+           "get_all_attendance",
+           "update_all_users"]
 
 
 
@@ -259,6 +260,7 @@ def get_users_in_all_groups(session_id, write=True, file_location=DOWNLOAD_LOCAT
     group_frame = get_groups(session_id, write=False)
     
     big_df = pd.DataFrame()
+    print("Grabbing all of the users in every group. Will take a few minutes...")
     
     for index, rows in group_frame.iterrows():
         gid = rows.gid
@@ -267,7 +269,7 @@ def get_users_in_all_groups(session_id, write=True, file_location=DOWNLOAD_LOCAT
             #skips groups that don't have anyone in them
             continue
         small_df = get_users_in_group(session_id, gid, write=False, group_name=g_name)
-        big_df = big_df.append(small_df)
+        big_df = big_df.append(small_df, sort=False)
     
     if write:
         full_path = os.path.join(file_location, filename)
@@ -323,7 +325,7 @@ def get_all_users(session_id, write=True, file_location=DOWNLOAD_LOCATION,
     print("Grabbing every user one at a time...this will take a few minutes")
     for index, rows in people_all.iterrows():
         small_df = get_user(session_id, rows['uid'])
-        big_df = big_df.append(small_df)
+        big_df = big_df.append(small_df, sort=False)
         
     df_columns = list(big_df.columns)
     meta_fields = _get_metadata(session_id)
@@ -339,6 +341,34 @@ def get_all_users(session_id, write=True, file_location=DOWNLOAD_LOCATION,
         return
     else:
         return big_df
+
+
+def update_all_users(session_id, input_filepath=None, write=True, 
+                     write_file_location=DOWNLOAD_LOCATION, 
+                     write_filename="updated_all_users_full.xlsx"):
+    """Compares the local users file to the current database online and updates local
+    
+    input_filepath = full path to local excel file to run through
+    
+    """
+    
+    if input_filepath is None:
+        input_filepath = os.path.join(DOWNLOAD_LOCATION, "all_users_full.xlsx")
+    people_all = download_all(session_id, write=False)
+    local_all = pd.read_excel(input_filepath)
+    to_append = pd.DataFrame()
+    local_list = list(local_all.uid)
+    people_list = list(people_all.uid)
+    for person in local_list:
+        if person not in people_list:
+            to_append = to_append.append(get_user(session_id, person), sort=False)
+    local_all = local_all.append(to_append)
+    if write:
+        full_path = os.path.join(write_file_location, write_filename)
+        local_all.to_excel(full_path)
+        return
+    else:
+        return local_all
 
 
 def get_user_attendance(session_id, uid, week_offset=0, number_of_weeks=50, 
@@ -414,6 +444,7 @@ if __name__ == "__main__":
     #get_all_users(session_id)
     #get_user_attendance(session_id, 1149)
     #get_all_attendance(session_id)
+    #update_all_users(session_id)
     
     
 
