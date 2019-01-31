@@ -27,6 +27,8 @@ _example_location = "C:\\Users\\username\\Downloads\\elexio\\output"
 DOWNLOAD_LOCATION = ""
 
 #Default delimiter used to save the data
+#This DELIMITER is no longer needed when saving to excel files. Leaving 
+#it here in case we switch back. 
 DELIMITER = "\t"
 
 
@@ -120,8 +122,8 @@ def get_session_id(username=None, password=None):
 
 
 def download_all(session_id, write=True, file_location=DOWNLOAD_LOCATION, 
-                 filename="people_all.tsv", delim=DELIMITER):
-    """Requests all of the people and formats it in a tsv
+                 filename="people_all.xlsx", delim=DELIMITER):
+    """Requests all of the people and saves it in an excel file
     
     """
     
@@ -157,8 +159,8 @@ def download_all(session_id, write=True, file_location=DOWNLOAD_LOCATION,
     full_path = os.path.join(file_location, filename)
     
     if write:
-        data_frame.to_csv(full_path, sep=delim)
-        data_frame.to_excel(os.path.join(file_location, "people_all.xlsx"))
+        #data_frame.to_csv(full_path, sep=delim)
+        data_frame.to_excel(full_path)
         return
     else:
         return data_frame
@@ -183,7 +185,7 @@ def get_pdf_of_user(session_id, user_id, file_location=DOWNLOAD_LOCATION):
     return
 
 def get_groups(session_id, write=True, file_location=DOWNLOAD_LOCATION, 
-               filename="groups.tsv", delim=DELIMITER):
+               filename="groups.xlsx", delim=DELIMITER):
     """Gets all of the groups and their descriptions, but not who is in them
     """
     
@@ -200,7 +202,7 @@ def get_groups(session_id, write=True, file_location=DOWNLOAD_LOCATION,
     
     if write:
         full_path = os.path.join(file_location, filename)
-        groups_frame.to_csv(full_path, sep=delim)
+        groups_frame.to_excel(full_path)
         return
     else:
         return groups_frame
@@ -241,16 +243,16 @@ def get_users_in_group(session_id, group_id,  group_name=None, write=True,
         user_df = user_df.iloc[:, :4]
     
     if write:
-        filename = 'users_in_group_' + str(group_id) + '.tsv'
+        filename = 'users_in_group_' + str(group_id) + '.xlsx'
         full_path = os.path.join(file_location, filename)
-        user_df.to_csv(full_path, sep=delim)
+        user_df.to_excel(full_path)
         return
     else:
         return user_df
     
     
 def get_users_in_all_groups(session_id, write=True, file_location=DOWNLOAD_LOCATION, 
-                            filename="users_in_all_groups.tsv", delim=DELIMITER):
+                            filename="users_in_all_groups.xlsx", delim=DELIMITER):
     """Gets the people every different group. Will take a while to request every group
     """
     
@@ -269,7 +271,7 @@ def get_users_in_all_groups(session_id, write=True, file_location=DOWNLOAD_LOCAT
     
     if write:
         full_path = os.path.join(file_location, filename)
-        big_df.to_csv(full_path, sep=delim)
+        big_df.to_excel(full_path)
         return
     else:
         return big_df
@@ -312,7 +314,7 @@ def get_user(session_id, user_id):
     return small_df
 
 def get_all_users(session_id, write=True, file_location=DOWNLOAD_LOCATION, 
-                  filename='all_users_full.tsv', delim=DELIMITER):
+                  filename='all_users_full.xlsx', delim=DELIMITER):
     """Gets the full data on all of the users, one at a time
     """
     
@@ -333,7 +335,7 @@ def get_all_users(session_id, write=True, file_location=DOWNLOAD_LOCATION,
     
     if write:
         full_path = os.path.join(file_location, filename)
-        big_df.to_csv(full_path, sep=delim)
+        big_df.to_excel(full_path)
         return
     else:
         return big_df
@@ -355,15 +357,15 @@ def get_user_attendance(session_id, uid, week_offset=0, number_of_weeks=50,
     att_df = pd.DataFrame(att_items)
     
     if write:
-        filename = "user_" + str(uid) + "_attendance.tsv"
+        filename = "user_" + str(uid) + "_attendance.xlsx"
         full_path = os.path.join(file_location, filename)
-        att_df.to_csv(full_path, sep=delim)
+        att_df.to_excel(full_path)
         return
     else:
         return att_df
 
 def get_all_attendance(session_id, week_off=0, number_of_weeks=50, write=True, 
-                   file_location=DOWNLOAD_LOCATION, filename="all_attendance.tsv", 
+                   file_location=DOWNLOAD_LOCATION, filename="all_attendance.xlsx", 
                    delim=DELIMITER):
     """Goes through every user and gets their attendence. 
     
@@ -389,7 +391,7 @@ def get_all_attendance(session_id, week_off=0, number_of_weeks=50, write=True,
     
     if write:
         full_path = os.path.join(file_location, filename)
-        big_df.to_csv(full_path, sep=delim)
+        big_df.to_excel(full_path)
         return
     else:
         return big_df
