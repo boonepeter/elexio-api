@@ -158,6 +158,7 @@ def download_all(session_id, write=True, file_location=DOWNLOAD_LOCATION,
     
     if write:
         data_frame.to_csv(full_path, sep=delim)
+        data_frame.to_excel(os.path.join(file_location, "people_all.xlsx"))
         return
     else:
         return data_frame
