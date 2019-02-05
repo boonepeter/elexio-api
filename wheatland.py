@@ -295,14 +295,14 @@ def get_user(session_id, user_id, write=False, file_location=DOWNLOAD_LOCATION):
             relative = f"{person['uid']}:{person['relationship']}"
             family_list.append(relative)
             person_data['fid'] = person['fid']
-        family_string = " ".join(family_list)
+        family_string = ",".join(family_list)
         person_data['family'] = family_string
     
     if person_data['groups'] != []:
         group_list = []
         for group in person_data['groups']:
             group_list.append(str(group['gid']))
-        person_data['groups'] = " ".join(group_list)
+        person_data['groups'] = ",".join(group_list)
     if person_data['note']:
         notes = []
         for key, value in person_data['note'].items():
@@ -312,6 +312,13 @@ def get_user(session_id, user_id, write=False, file_location=DOWNLOAD_LOCATION):
     small_df = pd.DataFrame([person_data], columns=ordered_columns)
     
     if write:
+        df_columns = list(small_df.columns)
+        meta_fields = _get_metadata(session_id)
+        for i in range(len(df_columns)):
+            for field, name in meta_fields.items():
+                if df_columns[i] == field:
+                    df_columns[i] = name
+        small_df.columns = df_columns
         filename = str(user_id) + ".xlsx"
         full_path = os.path.join(file_location, filename)
         small_df.to_excel(full_path)
