@@ -279,7 +279,7 @@ def get_users_in_all_groups(session_id, write=True, file_location=DOWNLOAD_LOCAT
        
     
         
-def get_user(session_id, user_id, write=False, file_location=DOWNLOAD_LOCATION):
+def get_user(session_id, user_id, write=True, file_location=DOWNLOAD_LOCATION):
     """Gets all of the info on a single person. The family, group, and note data 
     has to be parsed specially
     """
@@ -335,7 +335,7 @@ def get_all_users(session_id, write=True, file_location=DOWNLOAD_LOCATION,
     big_df = pd.DataFrame()
     print("Grabbing every user one at a time...this will take a few minutes")
     for index, rows in people_all.iterrows():
-        small_df = get_user(session_id, rows['uid'])
+        small_df = get_user(session_id, rows['uid'], write=False)
         big_df = big_df.append(small_df)
         
     df_columns = list(big_df.columns)
