@@ -279,7 +279,7 @@ def get_users_in_all_groups(session_id, write=True, file_location=DOWNLOAD_LOCAT
        
     
         
-def get_user(session_id, user_id):
+def get_user(session_id, user_id, write=False, file_location=DOWNLOAD_LOCATION):
     """Gets all of the info on a single person. The family, group, and note data 
     has to be parsed specially
     """
@@ -311,7 +311,13 @@ def get_user(session_id, user_id):
     ordered_columns = person_data.keys()
     small_df = pd.DataFrame([person_data], columns=ordered_columns)
     
-    return small_df
+    if write:
+        filename = str(user_id) + ".xlsx"
+        full_path = os.path.join(file_location, filename)
+        small_df.to_excel(full_path)
+        return
+    else:
+        return small_df
 
 def get_all_users(session_id, write=True, file_location=DOWNLOAD_LOCATION, 
                   filename='all_users_full.xlsx', delim=DELIMITER):
@@ -402,7 +408,14 @@ def get_all_attendance(session_id, week_off=0, number_of_weeks=50, write=True,
 
 if __name__ == "__main__":
     
+    #To get the session id:
     session_id = get_session_id()
+    
+    #This will get the info from one user:
+    #example_user_id = 1149
+    #get_user(session_id, example_user_id, write=True)
+    
+    
     
     
     #download_all(session_id)
