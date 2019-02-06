@@ -233,8 +233,6 @@ def get_users_in_group(session_id, group_id,  group_name=None, write=True,
         user_columns = [user_columns[-1]] + user_columns[:-1]
     user_df = user_df[user_columns]
     
-
-    
     #only need the first 4 columns
     #added if clause so when group name is passed we don't lose uid
     if group_name is not None:
@@ -282,32 +280,29 @@ def get_users_in_all_groups(session_id, write=True, file_location=DOWNLOAD_LOCAT
 def get_user(session_id, user_id, write=True, file_location=DOWNLOAD_LOCATION):
     """Gets all of the info on a single person. The family, group, and note data 
     has to be parsed specially
+    
+    
     """
     
     url_suffix = "/people/" + str(user_id)
     parameters = {"session_id":session_id}
     person_data = _request_get_data(url_suffix, parameters)
-    
     person_data['fid'] = ""
+    person_data["family_position"] = ""
     if person_data['family'] != []:
-        family_list = []
         for person in person_data['family']:
-            relative = f"{person['uid']}:{person['relationship']}"
-            family_list.append(relative)
-            person_data['fid'] = person['fid']
-        family_string = ",".join(family_list)
-        person_data['family'] = family_string
-    
+            if person["uid"] == person_data["uid"]:
+                person_data["family_position"] = person["relationship"]
+                person_data['fid'] = person['fid']
+                break
+            
     if person_data['groups'] != []:
         group_list = []
         for group in person_data['groups']:
             group_list.append(str(group['gid']))
         person_data['groups'] = ",".join(group_list)
-    if person_data['note']:
-        notes = []
-        for key, value in person_data['note'].items():
-            notes.append(f'{key}:{value}')
-        person_data['note'] = " ".join(notes)
+    note_ = person_data.pop("note")
+    
     ordered_columns = person_data.keys()
     small_df = pd.DataFrame([person_data], columns=ordered_columns)
     
@@ -326,32 +321,53 @@ def get_user(session_id, user_id, write=True, file_location=DOWNLOAD_LOCATION):
     else:
         return small_df
 
+def get_family_info(session_id, user_id):
+    """Returns the family id and family relationship in a dictionary
+    Used in the get_all_users function
+    """
+    url_suffix = "/people/" + str(user_id)
+    parameters = {"session_id":session_id}
+    person_data = _request_get_data(url_suffix, parameters)
+    family_info = {}
+    family_info['fid'] = ""
+    family_info["family_position"] = ""
+    if person_data['family'] != []:
+        for person in person_data['family']:
+            if person["uid"] == person_data["uid"]:
+                family_info["family_position"] = person["relationship"]
+                family_info['fid'] = person['fid']
+                break
+    return family_info
+
+
 def get_all_users(session_id, write=True, file_location=DOWNLOAD_LOCATION, 
                   filename='all_users_full.xlsx', delim=DELIMITER):
     """Gets the full data on all of the users, one at a time
     """
     
     people_all = download_all(session_id, write=False)
-    big_df = pd.DataFrame()
+    people_all["fid"] = ""
+    people_all["family_position"] = ""
     print("Grabbing every user one at a time...this will take a few minutes")
     for index, rows in people_all.iterrows():
-        small_df = get_user(session_id, rows['uid'], write=False)
-        big_df = big_df.append(small_df)
+        family_info = get_family_info(session_id, rows['uid'])
+        people_all.loc[index, "fid"] = family_info["fid"]
+        people_all.loc[index, "family_position"] = family_info["family_position"]
         
-    df_columns = list(big_df.columns)
+    df_columns = list(people_all.columns)
     meta_fields = _get_metadata(session_id)
     for i in range(len(df_columns)):
         for field, name in meta_fields.items():
             if df_columns[i] == field:
                 df_columns[i] = name
-    big_df.columns = df_columns
+    people_all.columns = df_columns
     
     if write:
         full_path = os.path.join(file_location, filename)
-        big_df.to_excel(full_path)
+        people_all.to_excel(full_path)
         return
     else:
-        return big_df
+        return people_all
 
 
 def get_user_attendance(session_id, uid, week_offset=0, number_of_weeks=50, 
