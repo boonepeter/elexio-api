@@ -12,7 +12,7 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'elexio-api'
+NAME = 'elexio_api'
 DESCRIPTION = "A small script to pull info from elexio's api"
 URL = 'https://github.com/boonepeter/elexio-api'
 EMAIL = 'boonepeter@gmail.com'
