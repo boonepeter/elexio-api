@@ -18,11 +18,19 @@ URL = 'https://github.com/boonepeter/elexio-api'
 EMAIL = 'boonepeter@gmail.com'
 AUTHOR = 'Peter Boone'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = 0.0.1
+VERSION = "0.0.1"
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    # 'requests', 'pandas', 'six',
+    "certifi==2018.11.29",
+    "chardet==3.0.4",
+    "idna==2.8",
+    "pandas==0.23.4",
+    "python-dateutil==2.7.5",
+    "pytz==2018.9",
+    "requests==2.21.0",
+    "six==1.12.0",
+    "urllib3==1.24.1",
 ]
 
 # What packages are optional?
