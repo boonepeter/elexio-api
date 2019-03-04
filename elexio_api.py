@@ -18,23 +18,30 @@ import json
 
 
 
-BASEURL = "https://wheatlandpca.elexiochms.com/api"
-
 def configure():
     with open("config.json", "r") as config_file:
         config_dict = json.load(config_file)
-    
-    if config_dict['BASEURL'] == "":
+        
+    if config_dict["Configured"] == "False":
         print("Configure your base URL...")
         print("An example is: 'https://wheatlandpca.elexiochms.com/api'")
-        base = input("Enter your base URL: ")
-        config_dict = {}
-        config_dict["BASEURL"] = base
+        session_id = ""
+        while session_id == "":
+            base = input("Enter your base URL: ")
+            session_id = get_session_id()
+            if session_id == "":
+                print("It looks like that base url is not valid. Try again")
         
-    with open("config.json", "w") as config_file:
-        config_file.write(json.dumps(config_dict))
-    
-    return config_dict
+        config_dict["BASEURL"] = base
+        config_dict["Configure"] = "False"
+        with open("config.json", "w") as config_file:
+            config_file.write(json.dumps(config_dict))
+    return
+
+def base_url():
+    with open("config.json", "r") as config_file:
+        config_dict = json.load(config_file)
+    return config_dict["BASEURL"]
 
 def get_session_id(username=None, password=None):
     """Posts username and password and returns a session_id string
@@ -357,27 +364,19 @@ def all_attendance(session_id, filename='all_attendance.csv', week_off=0, count=
                                      number_of_weeks=count)
         
         big_df = big_df.append(small_df)
-    
     big_df.to_csv(filename)
     return
 
 if __name__ == "__main__":
-    
-    print("Cool")
-        
-    
-#    session_id = get_session_id()
+    configure()
+    BASEURL = base_url()
     
     
-    #get_all_users(session_id)
-    #download_all(session_id)
-    #get_pdf_of_user(session_id, 1149)
-    #download_all(get_session_id())
-    #get_metadata(get_session_id())
-    #get_groups(session_id)
-    #get_users_in_group(session_id, 19)
-    #big_df_of_users(session_id)
-
     
-
-
+    
+    
+    
+    
+    
+    
+    
