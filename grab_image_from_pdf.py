@@ -7,7 +7,21 @@ import os
 
 
 def extract_image(pdf_bytes):
-    """Searches pdf bytes for the image start and end marks, returns bytes
+    """
+    Extracts an image from a pdf
+    
+    Reads through the pdf bytes searching for the start and end flags for an image.
+
+    Parameters
+    ----------
+    pdf_bytes : bytes
+        Bytes from a pdf file. Use open("fild.pdf", "rb") and then .read() to pass to
+        this function
+
+    Returns
+    -------
+    jpeg_bytes : bytes
+        Returns the bytes of the jpeg image
     """
     start_mark = b"\xff\xd8"
     end_mark = b"\xff\xd9"
