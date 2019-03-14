@@ -401,10 +401,22 @@ def get_all_attendance(session_id, week_off=0, number_of_weeks=50, write=True,
     
     Parameters
     ----------
-    weeks_off = offset back from current week. So 5 would start 5 weeks ago and 
-                work backwards from that
-    number_of_weeks = the number of events to count. Elexio default is 50. Entering a very 
-                large number will ensure that you get everything
+    session_id : `str`
+        Found using the `get_session_id()` method
+    write : `bool`, optional (default: True)
+        If true, writes an excel file and returns `None`
+        False returns a DataFrame
+    file_location : `str`, optional (default is a global variable)
+        Specify the folder location to save file
+    filename : `str`, optional (default: `"all_attendance.xlsx"`)
+    delim : `str`, optional (default is global variable)
+        Depreciated, saving files as excel instead of csv now
+    weeks_off : `int`, optional (default: 0)
+        offset back from current week. So 5 would start 5 weeks ago and 
+        work backwards from that
+    number_of_weeks : `int`, optional (default: 50)
+        the number of events to count. Elexio default is 50. Entering a very 
+        large number will ensure that you get everything
     
     """
     
