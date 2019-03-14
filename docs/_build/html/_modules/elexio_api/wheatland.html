@@ -1,0 +1,645 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>elexio_api.wheatland &mdash; elexio-api 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../',
+              VERSION:'0.1.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> elexio-api
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">elexio-api</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>elexio_api.wheatland</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for elexio_api.wheatland</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@author: Peter Boone</span>
+<span class="sd">email: boonepeterg@gmail.com</span>
+
+<span class="sd">Some functions to pull data from the Elexio API. </span>
+
+<span class="sd">Documentation for this API can be found at https://wheatlandpca.elexiochms.com/api_documentation </span>
+<span class="sd">(login required)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">getpass</span>
+
+
+<span class="c1">#The base url of Elexio&#39;s API</span>
+<span class="n">BASEURL</span> <span class="o">=</span> <span class="s2">&quot;https://wheatlandpca.elexiochms.com/api&quot;</span>
+
+<span class="c1">#Default location to save the files. If left blank the files will be saved in</span>
+<span class="c1">#the current working directory of the Python script. Format like this: </span>
+<span class="n">_example_location</span> <span class="o">=</span> <span class="s2">&quot;C:</span><span class="se">\\</span><span class="s2">Users</span><span class="se">\\</span><span class="s2">username</span><span class="se">\\</span><span class="s2">Downloads</span><span class="se">\\</span><span class="s2">elexio</span><span class="se">\\</span><span class="s2">output&quot;</span>
+<span class="c1">#Note the use of two backslashes...this is important because python treats one </span>
+<span class="c1">#backslash as an escape character</span>
+<span class="n">DOWNLOAD_LOCATION</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+<span class="c1">#Default delimiter used to save the data</span>
+<span class="c1">#This DELIMITER is no longer needed when saving to excel files. Leaving </span>
+<span class="c1">#it here in case we switch back. </span>
+<span class="n">DELIMITER</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+
+
+<span class="c1">#these are all of the functions</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;get_session_id&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;download_all&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;get_pdf_of_user&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;get_groups&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;get_users_in_group&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;get_users_in_all_groups&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;get_user&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;get_all_users&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;get_user_attendance&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;get_all_attendance&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;update_all_users&quot;</span><span class="p">]</span>
+
+
+
+
+<span class="c1">#The following few functions are just helper functions (hence the underscore</span>
+<span class="c1">#before their names)</span>
+<span class="k">def</span> <span class="nf">_request_get_data</span><span class="p">(</span><span class="n">url_suffix</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function to get a response with certain parameters and return the data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">BASEURL</span> <span class="o">+</span> <span class="n">url_suffix</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">_parse_names</span><span class="p">(</span><span class="n">last_name_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function to unpack the data when grouped by last name letter</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">big_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">last_letter</span><span class="p">,</span> <span class="n">people_with_last</span> <span class="ow">in</span> <span class="n">last_name_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">people_with_last</span><span class="p">:</span>
+            <span class="n">big_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">big_list</span>
+    
+
+<span class="k">def</span> <span class="nf">_get_metadata</span><span class="p">(</span><span class="n">session_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a dictionary of {&#39;text1&#39;: &#39;Race&#39;} etc</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">meta_data</span> <span class="o">=</span> <span class="n">_request_get_data</span><span class="p">(</span><span class="s1">&#39;/user/get_meta_data&#39;</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span><span class="n">session_id</span><span class="p">})</span>
+    <span class="n">meta_date_fields</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;dateFieldLabels&#39;</span><span class="p">]</span>
+    <span class="n">meta_text_fields</span> <span class="o">=</span> <span class="n">meta_data</span><span class="p">[</span><span class="s1">&#39;textFieldLabels&#39;</span><span class="p">]</span>
+    <span class="n">meta_date_fields</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">meta_text_fields</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">meta_date_fields</span>
+
+
+<div class="viewcode-block" id="get_session_id"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.get_session_id">[docs]</a><span class="k">def</span> <span class="nf">get_session_id</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Posts username and password and returns a session_id string</span>
+<span class="sd">    Prompts user for username and password</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">USERNAME</span> <span class="o">=</span> <span class="n">username</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter username and password. Press CTR-C at any time to exit&quot;</span><span class="p">)</span>
+        <span class="n">USERNAME</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Username: &quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">PASSWORD</span> <span class="o">=</span> <span class="n">password</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">PASSWORD</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">()</span>
+
+    <span class="n">login_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span><span class="n">USERNAME</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span><span class="n">PASSWORD</span><span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="c1">#send a request post with your info in it to receive a session_id</span>
+        <span class="n">session_url</span> <span class="o">=</span> <span class="n">BASEURL</span> <span class="o">+</span> <span class="s2">&quot;/user/login&quot;</span>
+        <span class="n">session_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">session_url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">login_info</span><span class="p">)</span>
+        
+        <span class="c1">#this will raise an error if we get a 404, 401, or other error, otherwise does nothing</span>
+        <span class="c1">#print out the error and try again            </span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">session_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="k">break</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Try username and password again&quot;</span><span class="p">)</span>
+        <span class="n">USERNAME</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Username: &quot;</span><span class="p">)</span>        
+        <span class="n">PASSWORD</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">()</span>
+
+    <span class="c1">#now session_response should have the session id in there if we logged in correctly</span>
+    <span class="n">session_json</span> <span class="o">=</span> <span class="n">session_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    
+    
+    <span class="c1">#this is how you get the value of a key from a dictionary</span>
+    <span class="n">session_data</span> <span class="o">=</span> <span class="n">session_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+    
+    <span class="c1">#get session_id</span>
+    <span class="k">return</span> <span class="n">session_data</span><span class="p">[</span><span class="s1">&#39;session_id&#39;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="download_all"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.download_all">[docs]</a><span class="k">def</span> <span class="nf">download_all</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file_location</span><span class="o">=</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">,</span> 
+                 <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;people_all.xlsx&quot;</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="n">DELIMITER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Requests all of the people and saves it in an excel file</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">people_data</span> <span class="o">=</span> <span class="n">_request_get_data</span><span class="p">(</span><span class="s2">&quot;/people/all&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span><span class="n">session_id</span><span class="p">})</span>
+    
+    <span class="c1">#empty list to store people</span>
+    <span class="n">big_list</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#people_data.items() unpacks the keys and values of a dictonary</span>
+    <span class="c1">#which we can then loop through</span>
+    <span class="k">for</span> <span class="n">last_letter</span><span class="p">,</span> <span class="n">people_with_last</span> <span class="ow">in</span> <span class="n">people_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">people_with_last</span><span class="p">:</span>
+            <span class="n">big_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
+    
+    
+    <span class="c1">#This gets us the columns in the correct order</span>
+    <span class="n">ordered_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">people_data</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    
+    <span class="c1">#pandas is the python package for dealing with data in columns</span>
+    <span class="n">data_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">big_list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">ordered_columns</span><span class="p">)</span>
+    
+    <span class="c1">#get metadata to label the csv</span>
+    <span class="n">meta_fields</span> <span class="o">=</span> <span class="n">_get_metadata</span><span class="p">(</span><span class="n">session_id</span><span class="p">)</span>
+    
+    <span class="c1">#rename columns in the dataframe</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered_columns</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">meta_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ordered_columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">field</span><span class="p">:</span>
+                <span class="n">ordered_columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+                
+    <span class="n">data_frame</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">ordered_columns</span>
+    
+    <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_location</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">write</span><span class="p">:</span>
+        <span class="c1">#data_frame.to_csv(full_path, sep=delim)</span>
+        <span class="n">data_frame</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data_frame</span></div>
+
+
+
+
+
+    
+<div class="viewcode-block" id="get_pdf_of_user"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.get_pdf_of_user">[docs]</a><span class="k">def</span> <span class="nf">get_pdf_of_user</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">file_location</span><span class="o">=</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">):</span>
+    
+    <span class="n">url</span> <span class="o">=</span> <span class="n">BASEURL</span> <span class="o">+</span> <span class="s1">&#39;/people/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span> 
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="n">session_id</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span><span class="s2">&quot;pdf&quot;</span><span class="p">}</span>
+    
+    <span class="n">pdf_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
+    <span class="n">pdf_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    
+    <span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.pdf&#39;</span>
+    <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_location</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pdf_file</span><span class="p">:</span>
+        <span class="n">pdf_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pdf_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+<div class="viewcode-block" id="get_groups"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.get_groups">[docs]</a><span class="k">def</span> <span class="nf">get_groups</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file_location</span><span class="o">=</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">,</span> 
+               <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;groups.xlsx&quot;</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="n">DELIMITER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gets all of the groups and their descriptions, but not who is in them</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">groups_data</span> <span class="o">=</span> <span class="n">_request_get_data</span><span class="p">(</span><span class="s2">&quot;/groups/sync&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="n">session_id</span><span class="p">})</span>
+    <span class="n">ordered_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">groups_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">groups_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">groups_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">ordered_columns</span><span class="p">)</span>
+    
+    <span class="c1">#clean up the HTML in the description column. Not essential so in a try clause</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">clean</span> <span class="o">=</span> <span class="n">groups_frame</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&lt;p&gt;|&lt;/p&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">groups_frame</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clean</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+    
+    <span class="k">if</span> <span class="n">write</span><span class="p">:</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_location</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">groups_frame</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">groups_frame</span></div>
+    
+    
+
+<div class="viewcode-block" id="get_users_in_group"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.get_users_in_group">[docs]</a><span class="k">def</span> <span class="nf">get_users_in_group</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span>  <span class="n">group_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                       <span class="n">file_location</span><span class="o">=</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="n">DELIMITER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gets the users in one group</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url_suffix</span> <span class="o">=</span> <span class="s2">&quot;/groups/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/people&quot;</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="n">session_id</span><span class="p">}</span>
+    
+    <span class="n">group_users_data</span> <span class="o">=</span> <span class="n">_request_get_data</span><span class="p">(</span><span class="n">url_suffix</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+    
+    <span class="n">user_list</span> <span class="o">=</span> <span class="n">_parse_names</span><span class="p">(</span><span class="n">group_users_data</span><span class="p">)</span>
+    <span class="n">ordered_columns</span> <span class="o">=</span> <span class="n">user_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">user_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">user_list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">ordered_columns</span><span class="p">)</span>
+    
+    <span class="c1">#add a group id column and reorder the columns</span>
+    <span class="n">user_df</span><span class="p">[</span><span class="s1">&#39;gid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group_id</span>
+    <span class="n">user_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">user_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">user_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">user_columns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">user_columns</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">user_df</span> <span class="o">=</span> <span class="n">user_df</span><span class="p">[</span><span class="n">user_columns</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">group_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">user_df</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group_name</span>
+        <span class="n">user_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">user_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">user_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">user_columns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">user_columns</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">user_df</span> <span class="o">=</span> <span class="n">user_df</span><span class="p">[</span><span class="n">user_columns</span><span class="p">]</span>
+    
+
+    
+    <span class="c1">#only need the first 4 columns</span>
+    <span class="c1">#added if clause so when group name is passed we don&#39;t lose uid</span>
+    <span class="k">if</span> <span class="n">group_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">user_df</span> <span class="o">=</span> <span class="n">user_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">user_df</span> <span class="o">=</span> <span class="n">user_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">4</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">write</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;users_in_group_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.xlsx&#39;</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_location</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">user_df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">user_df</span></div>
+    
+    
+<div class="viewcode-block" id="get_users_in_all_groups"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.get_users_in_all_groups">[docs]</a><span class="k">def</span> <span class="nf">get_users_in_all_groups</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file_location</span><span class="o">=</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">,</span> 
+                            <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;users_in_all_groups.xlsx&quot;</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="n">DELIMITER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gets the people every different group. Will take a while to request every group</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">group_frame</span> <span class="o">=</span> <span class="n">get_groups</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="n">big_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Grabbing all of the users in every group. Will take a few minutes...&quot;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">group_frame</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">gid</span> <span class="o">=</span> <span class="n">rows</span><span class="o">.</span><span class="n">gid</span>
+        <span class="n">g_name</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">rows</span><span class="o">.</span><span class="n">peopleCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1">#skips groups that don&#39;t have anyone in them</span>
+            <span class="k">continue</span>
+        <span class="n">small_df</span> <span class="o">=</span> <span class="n">get_users_in_group</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">gid</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="n">g_name</span><span class="p">)</span>
+        <span class="n">big_df</span> <span class="o">=</span> <span class="n">big_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">small_df</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">write</span><span class="p">:</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_location</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">big_df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">big_df</span></div>
+
+       
+    
+        
+<div class="viewcode-block" id="get_user"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.get_user">[docs]</a><span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gets all of the info on a single person. The family, group, and note data </span>
+<span class="sd">    has to be parsed specially</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">url_suffix</span> <span class="o">=</span> <span class="s2">&quot;/people/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span><span class="n">session_id</span><span class="p">}</span>
+    <span class="n">person_data</span> <span class="o">=</span> <span class="n">_request_get_data</span><span class="p">(</span><span class="n">url_suffix</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+    
+    <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;fid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;family&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[]:</span>
+        <span class="n">family_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;family&#39;</span><span class="p">]:</span>
+            <span class="n">relative</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{person[&#39;uid&#39;]}</span><span class="s2">:</span><span class="si">{person[&#39;relationship&#39;]}</span><span class="s2">&quot;</span>
+            <span class="n">family_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relative</span><span class="p">)</span>
+            <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;fid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s1">&#39;fid&#39;</span><span class="p">]</span>
+        <span class="n">family_string</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">family_list</span><span class="p">)</span>
+        <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;family&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">family_string</span>
+    
+    <span class="k">if</span> <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[]:</span>
+        <span class="n">group_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]:</span>
+            <span class="n">group_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;gid&#39;</span><span class="p">]))</span>
+        <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group_list</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;note&#39;</span><span class="p">]:</span>
+        <span class="n">notes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;note&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{key}</span><span class="s1">:</span><span class="si">{value}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">person_data</span><span class="p">[</span><span class="s1">&#39;note&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">notes</span><span class="p">)</span>
+    <span class="n">ordered_columns</span> <span class="o">=</span> <span class="n">person_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">small_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">person_data</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="n">ordered_columns</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">small_df</span></div>
+
+<div class="viewcode-block" id="get_all_users"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.get_all_users">[docs]</a><span class="k">def</span> <span class="nf">get_all_users</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file_location</span><span class="o">=</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">,</span> 
+                  <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;all_users_full.xlsx&#39;</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="n">DELIMITER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gets the full data on all of the users, one at a time</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">people_all</span> <span class="o">=</span> <span class="n">download_all</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">big_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Grabbing every user one at a time...this will take a few minutes&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">people_all</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">small_df</span> <span class="o">=</span> <span class="n">get_user</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">])</span>
+        <span class="n">big_df</span> <span class="o">=</span> <span class="n">big_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">small_df</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+    <span class="n">df_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">big_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">meta_fields</span> <span class="o">=</span> <span class="n">_get_metadata</span><span class="p">(</span><span class="n">session_id</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df_columns</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">meta_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">df_columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">field</span><span class="p">:</span>
+                <span class="n">df_columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">big_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df_columns</span>
+    
+    <span class="k">if</span> <span class="n">write</span><span class="p">:</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_location</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">big_df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">big_df</span></div>
+
+
+<div class="viewcode-block" id="update_all_users"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.update_all_users">[docs]</a><span class="k">def</span> <span class="nf">update_all_users</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">input_filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                     <span class="n">write_file_location</span><span class="o">=</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">,</span> 
+                     <span class="n">write_filename</span><span class="o">=</span><span class="s2">&quot;updated_all_users_full.xlsx&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compares the local users file to the current database online and updates local</span>
+<span class="sd">    </span>
+<span class="sd">    input_filepath = full path to local excel file to run through</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">input_filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">input_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">,</span> <span class="s2">&quot;all_users_full.xlsx&quot;</span><span class="p">)</span>
+    <span class="n">people_all</span> <span class="o">=</span> <span class="n">download_all</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">local_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">input_filepath</span><span class="p">)</span>
+    <span class="n">to_append</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">local_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">local_all</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+    <span class="n">people_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">people_all</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">local_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">person</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">people_list</span><span class="p">:</span>
+            <span class="n">to_append</span> <span class="o">=</span> <span class="n">to_append</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_user</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">person</span><span class="p">),</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">local_all</span> <span class="o">=</span> <span class="n">local_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">to_append</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">write</span><span class="p">:</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">write_file_location</span><span class="p">,</span> <span class="n">write_filename</span><span class="p">)</span>
+        <span class="n">local_all</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">local_all</span></div>
+
+
+<div class="viewcode-block" id="get_user_attendance"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.get_user_attendance">[docs]</a><span class="k">def</span> <span class="nf">get_user_attendance</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">week_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">number_of_weeks</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> 
+                      <span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file_location</span><span class="o">=</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="n">DELIMITER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gets a single user&#39;s attendance. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">url_suffix</span> <span class="o">=</span> <span class="s2">&quot;/attendance/for_person/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span><span class="n">session_id</span><span class="p">,</span> 
+                  <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">week_offset</span><span class="p">),</span> 
+                  <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">number_of_weeks</span><span class="p">)}</span>
+    
+    
+    <span class="n">att_data</span> <span class="o">=</span> <span class="n">_request_get_data</span><span class="p">(</span><span class="n">url_suffix</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+    <span class="n">att_items</span> <span class="o">=</span> <span class="n">att_data</span><span class="p">[</span><span class="s1">&#39;items&#39;</span><span class="p">]</span>
+    <span class="n">att_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">att_items</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">write</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;user_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_attendance.xlsx&quot;</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_location</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">att_df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">att_df</span></div>
+
+<div class="viewcode-block" id="get_all_attendance"><a class="viewcode-back" href="../../elexio_api.html#elexio_api.wheatland.get_all_attendance">[docs]</a><span class="k">def</span> <span class="nf">get_all_attendance</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">week_off</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">number_of_weeks</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                   <span class="n">file_location</span><span class="o">=</span><span class="n">DOWNLOAD_LOCATION</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;all_attendance.xlsx&quot;</span><span class="p">,</span> 
+                   <span class="n">delim</span><span class="o">=</span><span class="n">DELIMITER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Goes through every user and gets their attendence. </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    weeks_off = offset back from current week. So 5 would start 5 weeks ago and </span>
+<span class="sd">                work backwards from that</span>
+<span class="sd">    number_of_weeks = the number of events to count. Elexio default is 50. Entering a very </span>
+<span class="sd">                large number will ensure that you get everything</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    
+    <span class="n">people_all</span> <span class="o">=</span> <span class="n">download_all</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">big_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Grabbing attendance of every user one at a time...this will take a few minutes&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">people_all</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">small_df</span> <span class="o">=</span> <span class="n">get_user_attendance</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="n">rows</span><span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">],</span>
+                                       <span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">week_offset</span><span class="o">=</span><span class="n">week_off</span><span class="p">,</span> 
+                                       <span class="n">number_of_weeks</span><span class="o">=</span><span class="n">number_of_weeks</span><span class="p">)</span>
+        
+        <span class="n">big_df</span> <span class="o">=</span> <span class="n">big_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">small_df</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">write</span><span class="p">:</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_location</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">big_df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">big_df</span></div>
+
+
+<span class="c1">#This code will be executed when this file is run. If this file is imported into</span>
+<span class="c1">#another python program it will not run</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    
+    <span class="n">session_id</span> <span class="o">=</span> <span class="n">get_session_id</span><span class="p">()</span>
+    
+    
+    <span class="c1">#download_all(session_id)</span>
+    <span class="c1">#get_pdf_of_user(session_id, 1149)</span>
+    <span class="c1">#get_groups(session_id)</span>
+    <span class="c1">#get_users_in_group(session_id, 19)</span>
+    <span class="c1">#get_users_in_all_groups(session_id)</span>
+    <span class="c1">#get_user(session_id, 1149)</span>
+    <span class="c1">#get_all_users(session_id)</span>
+    <span class="c1">#get_user_attendance(session_id, 1149)</span>
+    <span class="c1">#get_all_attendance(session_id)</span>
+    <span class="c1">#update_all_users(session_id)</span>
+    
+    
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Peter Boone
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

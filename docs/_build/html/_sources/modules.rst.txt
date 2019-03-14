@@ -1,7 +1,7 @@
-src
-===
+elexio_api
+==========
 
 .. toctree::
    :maxdepth: 4
 
-   src
+   elexio_api

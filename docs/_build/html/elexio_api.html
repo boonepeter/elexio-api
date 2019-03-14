@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>elexio_api package &mdash; elexio-api 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'0.1.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> elexio-api
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">elexio_api package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-elexio_api.grab_image_from_pdf">elexio_api.grab_image_from_pdf module</a></li>
+<li><a class="reference internal" href="#module-elexio_api.wheatland">elexio_api.wheatland module</a></li>
+<li><a class="reference internal" href="#module-elexio_api">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">elexio-api</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>elexio_api package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/elexio_api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="elexio-api-package">
+<h1>elexio_api package<a class="headerlink" href="#elexio-api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-elexio_api.grab_image_from_pdf">
+<span id="elexio-api-grab-image-from-pdf-module"></span><h2>elexio_api.grab_image_from_pdf module<a class="headerlink" href="#module-elexio_api.grab_image_from_pdf" title="Permalink to this headline">¶</a></h2>
+<p>This is a function to grab an image from a pdf, based on this:
+<a class="reference external" href="https://nedbatchelder.com/blog/200712/extracting_jpgs_from_pdfs.html">https://nedbatchelder.com/blog/200712/extracting_jpgs_from_pdfs.html</a></p>
+<dl class="function">
+<dt id="elexio_api.grab_image_from_pdf.extract_image">
+<code class="descclassname">elexio_api.grab_image_from_pdf.</code><code class="descname">extract_image</code><span class="sig-paren">(</span><em>pdf_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/grab_image_from_pdf.html#extract_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.grab_image_from_pdf.extract_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts an image from a pdf</p>
+<p>Reads through the pdf bytes searching for the start and end flags for an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pdf_bytes</strong> (<em>bytes</em>) – Bytes from a pdf file. Use open(“fild.pdf”, “rb”) and then .read() to pass to
+this function</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>jpeg_bytes</strong> – Returns the bytes of the jpeg image</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bytes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.grab_image_from_pdf.process_folder">
+<code class="descclassname">elexio_api.grab_image_from_pdf.</code><code class="descname">process_folder</code><span class="sig-paren">(</span><em>input_folder</em>, <em>output_folder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/grab_image_from_pdf.html#process_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.grab_image_from_pdf.process_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-elexio_api.wheatland">
+<span id="elexio-api-wheatland-module"></span><h2>elexio_api.wheatland module<a class="headerlink" href="#module-elexio_api.wheatland" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author: Peter Boone
+email: <a class="reference external" href="mailto:boonepeterg&#37;&#52;&#48;gmail&#46;com">boonepeterg<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+<p>Some functions to pull data from the Elexio API.</p>
+<p>Documentation for this API can be found at <a class="reference external" href="https://wheatlandpca.elexiochms.com/api_documentation">https://wheatlandpca.elexiochms.com/api_documentation</a>
+(login required)</p>
+<dl class="function">
+<dt id="elexio_api.wheatland.get_session_id">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">get_session_id</code><span class="sig-paren">(</span><em>username=None</em>, <em>password=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#get_session_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.get_session_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Posts username and password and returns a session_id string
+Prompts user for username and password</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.download_all">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">download_all</code><span class="sig-paren">(</span><em>session_id</em>, <em>write=True</em>, <em>file_location=''</em>, <em>filename='people_all.xlsx'</em>, <em>delim='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#download_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.download_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requests all of the people and saves it in an excel file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.get_pdf_of_user">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">get_pdf_of_user</code><span class="sig-paren">(</span><em>session_id</em>, <em>user_id</em>, <em>file_location=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#get_pdf_of_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.get_pdf_of_user" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.get_groups">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">get_groups</code><span class="sig-paren">(</span><em>session_id</em>, <em>write=True</em>, <em>file_location=''</em>, <em>filename='groups.xlsx'</em>, <em>delim='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#get_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.get_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all of the groups and their descriptions, but not who is in them</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.get_users_in_group">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">get_users_in_group</code><span class="sig-paren">(</span><em>session_id</em>, <em>group_id</em>, <em>group_name=None</em>, <em>write=True</em>, <em>file_location=''</em>, <em>delim='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#get_users_in_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.get_users_in_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the users in one group</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.get_users_in_all_groups">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">get_users_in_all_groups</code><span class="sig-paren">(</span><em>session_id</em>, <em>write=True</em>, <em>file_location=''</em>, <em>filename='users_in_all_groups.xlsx'</em>, <em>delim='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#get_users_in_all_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.get_users_in_all_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the people every different group. Will take a while to request every group</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.get_user">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">get_user</code><span class="sig-paren">(</span><em>session_id</em>, <em>user_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#get_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.get_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all of the info on a single person. The family, group, and note data
+has to be parsed specially</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.get_all_users">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">get_all_users</code><span class="sig-paren">(</span><em>session_id</em>, <em>write=True</em>, <em>file_location=''</em>, <em>filename='all_users_full.xlsx'</em>, <em>delim='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#get_all_users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.get_all_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the full data on all of the users, one at a time</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.get_user_attendance">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">get_user_attendance</code><span class="sig-paren">(</span><em>session_id</em>, <em>uid</em>, <em>week_offset=0</em>, <em>number_of_weeks=50</em>, <em>write=True</em>, <em>file_location=''</em>, <em>delim='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#get_user_attendance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.get_user_attendance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a single user’s attendance.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.get_all_attendance">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">get_all_attendance</code><span class="sig-paren">(</span><em>session_id</em>, <em>week_off=0</em>, <em>number_of_weeks=50</em>, <em>write=True</em>, <em>file_location=''</em>, <em>filename='all_attendance.xlsx'</em>, <em>delim='\t'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#get_all_attendance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.get_all_attendance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Goes through every user and gets their attendence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>= offset back from current week. So 5 would start 5 weeks ago and</strong> (<em>weeks_off</em>) – work backwards from that</li>
+<li><strong>= the number of events to count. Elexio default is 50. Entering a very</strong> (<em>number_of_weeks</em>) – large number will ensure that you get everything</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="elexio_api.wheatland.update_all_users">
+<code class="descclassname">elexio_api.wheatland.</code><code class="descname">update_all_users</code><span class="sig-paren">(</span><em>session_id</em>, <em>input_filepath=None</em>, <em>write=True</em>, <em>write_file_location=''</em>, <em>write_filename='updated_all_users_full.xlsx'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/elexio_api/wheatland.html#update_all_users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#elexio_api.wheatland.update_all_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the local users file to the current database online and updates local</p>
+<p>input_filepath = full path to local excel file to run through</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-elexio_api">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-elexio_api" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Peter Boone
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
