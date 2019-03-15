@@ -1,5 +1,5 @@
 # elexio-api
-A few python functions to pull and parse data from [Elexio's](https://www.elexio.com/) api.
+A few python functions to pull and parse data from [Elexio's](https://www.elexio.com/) api. Documentation for this API can be found at https://wheatlandpca.elexiochms.com/api_documentation (login required)
 
 ### Install
 ```consol
