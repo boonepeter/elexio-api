@@ -9,7 +9,7 @@ import json
 
 #read in config file to get download location
 def _read_config():
-    with open("config.json", "r") as conf:
+    with open("config.py", "r") as conf:
         config_dict = json.load(conf)
     base = config_dict["BASEURL"]
     down_loc = config_dict["DOWNLOAD_LOCATION"]
@@ -69,7 +69,7 @@ def _get_metadata(session_id):
     meta_date_fields.update(meta_text_fields)
     return meta_date_fields
 
-def _write_config(file="config.json", url=None, location=None):
+def _write_config(file="config.py", url=None, location=None):
     """Prompts user and writes to the config file
     
     Parameters
