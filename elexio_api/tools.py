@@ -1,30 +1,22 @@
 
-"""
-@author: Peter Boone
-email: boonepeterg@gmail.com
-
-Some functions to pull data from the Elexio API. 
-
-Documentation for this API can be found at https://wheatlandpca.elexiochms.com/api_documentation 
-(login required)
-
-"""
-
 import requests
 import pandas as pd
 import os
 import getpass
+import json
 
 
-#The base url of Elexio's API
-BASEURL = "https://wheatlandpca.elexiochms.com/api"
 
-#Default location to save the files. If left blank the files will be saved in
-#the current working directory of the Python script. Format like this: 
-_example_location = "C:\\Users\\username\\Downloads\\elexio\\output"
-#Note the use of two backslashes...this is important because python treats one 
-#backslash as an escape character
-DOWNLOAD_LOCATION = ""
+#read in config file to get download location
+def _read_config():
+    with open("config.json", "r") as conf:
+        config_dict = json.load(conf)
+    base = config_dict["BASEURL"]
+    down_loc = config_dict["DOWNLOAD_LOCATION"]
+    return base, down_loc
+
+BASEURL, DOWNLOAD_LOCATION = _read_config()
+
 
 #Default delimiter used to save the data
 #This DELIMITER is no longer needed when saving to excel files. Leaving 
@@ -76,6 +68,40 @@ def _get_metadata(session_id):
     meta_text_fields = meta_data['textFieldLabels']
     meta_date_fields.update(meta_text_fields)
     return meta_date_fields
+
+def _write_config(file="config.json", url=None, location=None):
+    """Prompts user and writes to the config file
+    
+    Parameters
+    ----------
+    file : `str`, optional
+        Name of config file
+    url : `str`, optional
+        Base url to write. If none, prompts user
+    loaction : `str`, optional
+        Filepath to write to config file. If None, prompts user
+    
+    Returns
+    -------
+    `None`
+    
+    """
+    if url is None:
+        url = input("Enter the base url for api calls: ")
+    if location is None:
+        enter = None
+        while enter not in ["y", "Y", "n", "N"]:
+            enter = input("Enter download location? [y/n] ")
+        enter = enter.lower()
+        if enter == "n":
+            location = ""
+            pass
+        elif enter == "y":
+            location = input("Enter filepath to download excel files ")
+    config_dict = {"BASEURL": url, "DOWNLOAD_LOCATION": location}
+    config_str = json.dumps(config_dict)
+    with open(file, "w") as config_file:
+        config_file.write(config_str)
 
 
 def get_session_id(username=None, password=None):
