@@ -4,12 +4,13 @@ import pandas as pd
 import os
 import getpass
 import json
-
+import pkg_resources as pkg
 
 
 #read in config file to get download location
 def _read_config():
-    with open("config.py", "r") as conf:
+    config_path = pkg.resource_filename("elexio_api", "config.json")
+    with open(config_path, "r") as conf:
         config_dict = json.load(conf)
     base = config_dict["BASEURL"]
     down_loc = config_dict["DOWNLOAD_LOCATION"]
@@ -69,7 +70,7 @@ def _get_metadata(session_id):
     meta_date_fields.update(meta_text_fields)
     return meta_date_fields
 
-def _write_config(file="config.py", url=None, location=None):
+def _write_config(file="config.json", url=None, location=None):
     """Prompts user and writes to the config file
     
     Parameters
@@ -86,6 +87,7 @@ def _write_config(file="config.py", url=None, location=None):
     `None`
     
     """
+    config_path = pkg.resource_filename("elexio_api", file)
     if url is None:
         url = input("Enter the base url for api calls: ")
     if location is None:
@@ -100,9 +102,9 @@ def _write_config(file="config.py", url=None, location=None):
             location = input("Enter filepath to download excel files ")
     config_dict = {"BASEURL": url, "DOWNLOAD_LOCATION": location}
     config_str = json.dumps(config_dict)
-    with open(file, "w") as config_file:
+    with open(config_path, "w") as config_file:
         config_file.write(config_str)
-
+    return
 
 def get_session_id(username=None, password=None):
     """Posts username and password and returns a session_id string
