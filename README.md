@@ -15,3 +15,7 @@ id = elexio_api.get_session_id()
 elexio_api.download_all(id)
 elexio_api.get_pdf_of_user(id, user_id=1149)
 ```
+
+
+### Build Status
+[![Build Status](https://dev.azure.com/boonepeterg/elexio-api/_apis/build/status/boonepeter.elexio-api?branchName=master)](https://dev.azure.com/boonepeterg/elexio-api/_build/latest?definitionId=1&branchName=master)
