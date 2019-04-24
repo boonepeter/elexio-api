@@ -30,7 +30,7 @@ REQUIRED = [
     "pytz==2018.9",
     "requests==2.21.0",
     "six==1.12.0",
-    "urllib3==1.24.1",
+    "urllib3>=1.24.2",
     "numpy==1.15.4",
 ]
 
