@@ -31,7 +31,7 @@ REQUIRED = [
     "requests==2.21.0",
     "six==1.12.0",
     "urllib3>=1.24.2",
-    "numpy==1.15.4",
+    "numpy==1.22.0",
 ]
 
 # What packages are optional?
